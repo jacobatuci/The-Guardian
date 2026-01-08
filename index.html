@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button id="saveBtn">Save Face</button>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJ6-mhKmEbUqVjypRtVBK0Ej_yYrUNdoI",
+    authDomain: "guardian-home-security-system.firebaseapp.com",
+    databaseURL: "https://guardian-home-security-system-default-rtdb.firebaseio.com",
+    projectId: "guardian-home-security-system",
+    storageBucket: "guardian-home-security-system.appspot.com",
+    messagingSenderId: "941548136882",
+    appId: "1:941548136882:web:80d607137117d114659cab"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  document.getElementById("saveBtn").onclick = function () {
+    db.ref("command").set({
+      action: "save_face"
+    });
+    alert("Command Sent");
+  };
+</script>
+
+</body>
+</html>
