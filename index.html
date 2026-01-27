@@ -202,14 +202,8 @@
   lockBtn.onclick = () => {
     if (!lockActive) {
       sendCommand("activate_lock");
-      lockActionText.innerText = "Deactivate";
-      lockActionText.className = "text-red";
-      lockActive = true;
     } else {
       sendCommand("deactivate_lock");
-      lockActionText.innerText = "Activate";
-      lockActionText.className = "text-green";
-      lockActive = false;
     }
   };
 
@@ -218,6 +212,33 @@
       document.getElementById("statusText").innerText =
         "Status: " + snapshot.val();
     }
+  });
+
+  db.ref("lock_state").on("value", snapshot => {
+      const locked = snapshot.val();
+
+      if (locked === true) {
+        lockActionText.innerText = "Deactivate";
+        lockActionText.className = "text-red";
+        lockActive = true;
+      } else {
+        lockActionText.innerText = "Activate";
+        lockActionText.className = "text-green";
+        lockActive = false;
+      }
+  });
+
+  db.ref("camera_state").on("value", snapshot => {
+      const active = snapshot.val();
+      const camText = document.getElementById("cameraStatus");
+
+      if (active) {
+        camText.innerText = "Active";
+        camText.className = "active";
+      } else {
+        camText.innerText = "Not Active";
+        camText.className = "inactive";
+      }
   });
 </script>
 
