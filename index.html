@@ -14,16 +14,19 @@
 
     header {
       padding: 15px 20px;
-      background: #1e1e1e;
+      background: linear-gradient(90deg, #1e1e1e, #151515);
       font-size: 20px;
       font-weight: bold;
       border-bottom: 1px solid #333;
+      letter-spacing: 0.5px;
     }
 
     .container {
       display: flex;
       padding: 20px;
       gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .video-panel {
@@ -31,12 +34,13 @@
       background: #000;
       border-radius: 8px;
       overflow: hidden;
+      aspect-ratio: 16 / 9;
+      display: flex;
     }
 
     .video-panel iframe {
       width: 100%;
       height: 100%;
-      min-height: 360px;
       border: none;
     }
 
@@ -53,15 +57,45 @@
     button {
       padding: 12px;
       font-size: 16px;
-      background: #2e7dff;
-      color: white;
-      border: none;
+      background: #2b2b2b;
+      color: #eee;
+      border: 1px solid #444;
       border-radius: 5px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #1c5fd1;
+      background: #3a3a3a;
+    }
+
+    .indicator {
+      font-size: 14px;
+      padding: 8px;
+      border-radius: 5px;
+      background: #222;
+      border: 1px solid #333;
+    }
+
+    .text-green {
+      color: #2ecc71;
+      font-weight: bold;
+    }
+
+    .text-red {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .indicator span {
+      font-weight: bold;
+    }
+
+    .active {
+      color: #2ecc71;
+    }
+
+    .inactive {
+      color: #e74c3c;
     }
 
     .status {
@@ -70,6 +104,25 @@
       color: #aaa;
       padding-top: 10px;
       border-top: 1px solid #333;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .video-panel {
+        width: 100%;
+      }
+
+      .control-panel {
+        width: 100%;
+      }
+
+      button {
+        font-size: 18px;
+        padding: 14px;
+      }
     }
   </style>
 </head>
@@ -93,11 +146,21 @@
 
   <!-- Controls -->
   <div class="control-panel">
-    <button id="saveBtn">Save Face</button>
-    <div class="status" id="statusText">
-      Status: idle
+      <button id="saveFingerprintBtn">Save Fingerprint</button>
+      <button id="deleteFingerprintBtn">Delete Fingerprint</button>
+
+      <button id="lockToggleBtn">
+          <span id="lockAction" class="text-green">Activate</span> Lock
+      </button>
+
+      <div class="indicator">
+        Camera: <span id="cameraStatus" class="inactive">Not Active</span>
+      </div>
+
+      <div class="status" id="statusText">
+        Status: idle
+      </div>
     </div>
-  </div>
 
 </div>
 
@@ -119,10 +182,35 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  document.getElementById("saveBtn").onclick = function () {
-    db.ref("command").set({ action: "save_face" });
+  function sendCommand(action) {
+    db.ref("command").set({ action });
     document.getElementById("statusText").innerText =
-      "Status: saving face...";
+      "Status: " + action.replace("_", " ");
+  }
+
+  document.getElementById("saveFingerprintBtn").onclick = () =>
+    sendCommand("save_fingerprint");
+
+  document.getElementById("deleteFingerprintBtn").onclick = () =>
+    sendCommand("delete_fingerprint");
+
+  let lockActive = false;
+
+  const lockBtn = document.getElementById("lockToggleBtn");
+  const lockActionText = document.getElementById("lockAction");
+
+  lockBtn.onclick = () => {
+    if (!lockActive) {
+      sendCommand("activate_lock");
+      lockActionText.innerText = "Deactivate";
+      lockActionText.className = "text-red";
+      lockActive = true;
+    } else {
+      sendCommand("deactivate_lock");
+      lockActionText.innerText = "Activate";
+      lockActionText.className = "text-green";
+      lockActive = false;
+    }
   };
 
   db.ref("status/message").on("value", snapshot => {
