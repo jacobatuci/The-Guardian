@@ -154,6 +154,10 @@
       </button>
 
       <div class="indicator">
+        Door: <span id="doorStatus" class="inactive">Closed</span>
+      </div>
+    
+      <div class="indicator">
         Camera: <span id="cameraStatus" class="inactive">Not Active</span>
       </div>
 
@@ -240,6 +244,20 @@
         camText.className = "inactive";
       }
   });
+
+  db.ref("door_state").on("value", snapshot => {
+    const open = snapshot.val();
+    const doorText = document.getElementById("doorStatus");
+
+    if (open === true) {
+        doorText.innerText = "Open";
+        doorText.className = "active";
+    } else {
+        doorText.innerText = "Closed";
+        doorText.className = "inactive";
+    }
+});
+
 </script>
 
 </body>
