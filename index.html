@@ -186,17 +186,16 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  function sendCommand(action) {
-    db.ref("command").set({ action });
+  function sendFingerprintCommand(action) {
+    db.ref("fingerprint_command").set(action);
     document.getElementById("statusText").innerText =
       "Status: " + action.replace("_", " ");
   }
 
   document.getElementById("saveFingerprintBtn").onclick = () =>
-    sendCommand("save_fingerprint");
-
+    sendFingerprintCommand("enroll");
   document.getElementById("deleteFingerprintBtn").onclick = () =>
-    sendCommand("delete_fingerprint");
+    sendFingerprintCommand("delete");
 
   let lockActive = false;
 
@@ -205,9 +204,10 @@
 
   lockBtn.onclick = () => {
     if (!lockActive) {
-      sendCommand("activate_lock");
+      db.ref("command").set({ action: "activate_lock" });
     } else {
-      sendCommand("deactivate_lock");
+      // Deactivating lock requires fingerprint
+      sendFingerprintCommand("unlock");
     }
   };
 
